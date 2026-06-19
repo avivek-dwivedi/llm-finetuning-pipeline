@@ -1,0 +1,40 @@
+project:
+  name: ec2-finetuning-v1
+  run_name: ray-multigpu-llm-sft-lora
+  output_dir: ./outputs/ray_llm_sft
+  ray_storage_path: ./ray_results
+
+ray:
+  num_workers: 2
+  use_gpu: true
+  cpus_per_worker: 4
+  address: null
+
+model:
+  name: Qwen/Qwen2.5-0.5B-Instruct
+  trust_remote_code: true
+  torch_dtype: bf16
+  use_4bit: false
+
+data:
+  # Reuse the small smoke-test JSONL first, then increase samples in configs/llm_sft_qlora.yaml before scaling Ray runs.
+  output_jsonl: ./data/llm_sft/train.jsonl
+
+lora:
+  r: 16
+  alpha: 32
+  dropout: 0.05
+  target_modules: [q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj]
+
+training:
+  epochs: 1
+  max_seq_length: 512
+  per_device_train_batch_size: 1
+  gradient_accumulation_steps: 4
+  learning_rate: 0.0002
+  logging_steps: 10
+  save_steps: 100
+  bf16: true
+  fp16: false
+  gradient_checkpointing: true
+  report_to: [wandb]

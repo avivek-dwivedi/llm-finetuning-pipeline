@@ -1,0 +1,23 @@
+project:
+  name: ec2-finetuning-v1
+  run_name: embedding-finetune-minilm
+  output_dir: ./outputs/embedding_model
+
+model:
+  name: sentence-transformers/all-MiniLM-L6-v2
+
+data:
+  output_jsonl: ./data/embedding/pairs.jsonl
+  # Start with 20 samples for smoke tests. Students can increase to 500 or 1000 after the first successful run.
+  max_samples: 20
+
+training:
+  epochs: 1
+  per_device_train_batch_size: 1
+  gradient_accumulation_steps: 4
+  max_seq_length: 512
+  batch_size: 16
+  learning_rate: 0.00002
+  warmup_steps: 50
+  evaluation_steps: 100
+  show_progress_bar: true

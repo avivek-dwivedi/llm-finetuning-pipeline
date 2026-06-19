@@ -1,0 +1,38 @@
+project:
+  name: ec2-finetuning-v1
+  run_name: llm-sft-qwen-0_5b-qlora
+  output_dir: ./outputs/llm_sft
+
+model:
+  name: Qwen/Qwen2.5-0.5B-Instruct
+  trust_remote_code: true
+  use_4bit: true
+  torch_dtype: bf16
+
+data:
+  dataset_name: yahma/alpaca-cleaned
+  split: train
+  # Start with 20 samples for smoke tests. Students can increase to 500 or 1000 after the first successful run.
+  max_samples: 20
+  output_jsonl: ./data/llm_sft/train.jsonl
+
+lora:
+  r: 16
+  alpha: 32
+  dropout: 0.05
+  target_modules: [q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj]
+
+training:
+  epochs: 1
+  max_seq_length: 512
+  per_device_train_batch_size: 1
+  gradient_accumulation_steps: 4
+  learning_rate: 0.0002
+  warmup_ratio: 0.03
+  logging_steps: 10
+  save_steps: 100
+  save_total_limit: 2
+  bf16: true
+  fp16: false
+  gradient_checkpointing: true
+  report_to: [wandb]
